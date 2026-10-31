@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="uk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IRONLOG — мій трекер тренувань</title>
+<style>
+:root{--bg:#0a0a0a;--card:#141414;--card2:#1d1d1d;--tx:#fafafa;--mu:#8c8c8c;--ac:#fafafa;--ac2:#d4ff3a;--ok:#4ade80;--bad:#ff4d4d;--bd:#262626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f3f4f8;--card:#fff;--card2:#eceef5;--tx:#12141c;--mu:#5d647a;--ac:#5c8a00;--ac2:#e03a1c;--ok:#0a9d5a;--bad:#d62843;--bd:#d9dce8}}
+*{box-sizing:border-box;margin:0}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:radial-gradient(900px 500px at 85% -10%,rgba(255,77,46,.18),transparent),radial-gradient(800px 500px at -10% 10%,rgba(198,255,61,.12),transparent),var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:90px}
+.w{max-width:860px;margin:auto;padding:18px 14px}
+h1{font-size:30px;font-weight:900;letter-spacing:3px;font-style:italic;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.lv{text-align:right;font-size:12px;color:var(--mu)}.lv b{display:block;color:var(--ac);font-size:15px}
+.bar{height:6px;background:var(--card2);border-radius:9px;overflow:hidden;margin-top:5px;width:130px;margin-left:auto}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.s{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;text-align:center}
+.s b{display:block;font-size:24px;font-weight:900}.s span{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:6px;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd);z-index:5}
+.nav button{flex:1;max-width:150px;background:transparent;border:0;color:var(--mu);font-weight:700;padding:10px 4px;border-radius:12px;font-size:13px;cursor:pointer}
+.nav button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#07080c}
+.pills{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.pill{background:var(--card2);border:1px solid var(--bd);color:var(--tx);padding:8px 14px;border-radius:99px;font-weight:700;cursor:pointer;font-size:13px}
+.pill.on{background:var(--ac);color:#07080c;border-color:var(--ac)}
+.ex h3{font-size:16px}.ex .t{color:var(--mu);font-size:12px;margin:2px 0 8px}.ex .l{color:var(--ac);font-size:12px;margin-bottom:6px}
+.set{display:grid;grid-template-columns:26px 1fr 1fr 40px;gap:6px;align-items:center;margin-bottom:5px}
+.set em{font-style:normal;color:var(--mu);font-size:12px;text-align:center}
+input{background:var(--card2);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;width:100%;font-size:15px}
+input:focus{outline:2px solid var(--ac);border-color:transparent}
+.ck{height:38px;border-radius:10px;border:1px solid var(--bd);background:var(--card2);color:var(--tx);font-size:18px;cursor:pointer}.ck.on{background:var(--ok);color:#07080c;border-color:var(--ok)}
+.go{width:100%;padding:15px;border:0;border-radius:14px;font-size:16px;font-weight:900;letter-spacing:1px;cursor:pointer;color:#07080c;background:linear-gradient(135deg,var(--ac),var(--ac2))}.go.d{background:var(--ok)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.cal .h{text-align:center;font-size:11px;color:var(--mu)}
+.c{aspect-ratio:1;border-radius:11px;background:var(--card2);border:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;cursor:pointer;color:var(--tx)}
+.c small{font-size:10px;margin-top:1px}.c.e{visibility:hidden}
+.c.done{background:var(--ok);color:#07080c;font-weight:800}.c.miss{background:rgba(255,61,90,.2);border-color:var(--bad);color:var(--bad);font-weight:800}
+.c.plan{border-style:dashed;border-color:var(--ac)}.c.today{box-shadow:0 0 0 2px var(--ac2);animation:p 1.6s infinite}
+@keyframes p{50%{box-shadow:0 0 0 5px rgba(255,77,46,.25)}}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800}.mh button{background:var(--card2);border:1px solid var(--bd);color:var(--tx);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mu);margin-top:10px}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.f{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}.f label{font-size:11px;color:var(--mu)}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.dl{font-size:13px;font-weight:800;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}td{padding:7px 4px;border-bottom:1px solid var(--bd)}td:last-child{text-align:right;color:var(--ac);white-space:nowrap}
+.tip{font-size:13px;line-height:1.5;color:var(--mu);margin:6px 0}.tip b{color:var(--tx)}
+.toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--ac);color:#07080c;padding:10px 18px;border-radius:99px;font-weight:800;z-index:9}
+.sm{background:none;border:1px solid var(--bd);color:var(--mu);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:11px}
+body{background:var(--bg)}h1{background:none;-webkit-text-fill-color:currentColor;color:var(--tx);font-style:normal;letter-spacing:5px;text-transform:uppercase}
+.go,.nav button.on,.pill.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}.go.d{background:var(--ok);color:#000}
+.bar i{background:var(--ac2)}.card,.s,.go{border-radius:6px}.c,.pill,input,.ck,select,textarea{border-radius:4px}
+.nav button{text-transform:uppercase;letter-spacing:.5px;font-size:10px;border-radius:4px}.pill{text-transform:uppercase;font-size:11px;letter-spacing:1px}
+.lv b,.ex .l,td:last-child{color:var(--ac2)}.c.today{animation:none;box-shadow:0 0 0 2px var(--ac2)}.c.plan{border-color:var(--ac2)}
+textarea,select{background:var(--card2);border:1px solid var(--bd);color:var(--tx);width:100%;padding:9px;font-size:15px;font-family:inherit}
+.tag{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#0a0a0a;background:var(--ac2);padding:2px 7px;border-radius:3px;font-weight:800}
+.po img{max-width:100%;border-radius:6px;margin-top:8px}.po small,.mm small{color:var(--mu)}.mm{padding:5px 0;font-size:14px}.pr{display:flex;gap:8px;align-items:center;margin-bottom:6px}.pr b{flex:1;font-size:13px}.pr input{width:62px;padding:6px}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--ac2:#4a7a00}.tag{color:#fff}}
+</style></head><body><div class="w">
+<div class="top"><h1>IRONLOG</h1><div class="lv" id="lv"></div></div>
+<div class="st" id="st"></div>
+<div id="v"></div></div>
+<div class="nav" id="nav"></div>
+<script>
+var P=[
+{n:"Спина + плечі",e:[["Тяга верхнього блоку",4,"8–12"],["Бічні підйоми",4,"12–20"],["Похилий жим у тренажері",3,"8–12"],["Тяга гантелей на лаві (грудьми на спинку)",3,"10–12"],["Жим ногами",3,"8–12"],["Пуловер з гантеллю",2,"12–15"],["Ab Coaster",3,"10–15"]]},
+{n:"Підтягування + верх",e:[["Підтягування (гума / тренажер)",4,"6–10"],["Бічні підйоми",3,"15–20"],["Жим гантелей сидячи над головою",3,"8–10"],["Жим гантелей на похилій лаві (~30°)",3,"8–12"],["Тяга гантелі однією рукою",3,"10–12"],["Румунська тяга",3,"8–10"],["Face pull",3,"15"],["Підйом колін у висі",3,"8–15"]]},
+{n:"Тяга + груди + ноги",e:[["Тяга блоку однією рукою",3,"10–15"],["Бічні підйоми",3,"15–20"],["Похилий жим у тренажері",3,"8–12"],["Тяга горизонтального блоку",3,"10–12"],["Присід гоблет / гакк / жим ногами",3,"8–12"],["Прямі руки на блоці",2,"12–15"],["Ab Coaster",3,"10–15"]]}];
+var SC={1:0,3:1,5:2},MN=["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"],LT=["Новачок","Залізний","Боєць","Звір","Монстр","Легенда"];
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+var K="ironlog_v1",S=null;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+S=S||{logs:{},body:[],start:iso(new Date())};var DEF=JSON.stringify(P);if(S.plan)P=S.plan;
+function sv(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+var T=iso(new Date()),tab="t",sel=null,cm=new Date().getMonth(),cy=new Date().getFullYear();
+function sch(s){return SC[new Date(s+"T12:00:00").getDay()]}
+function stat(s){var L=S.logs[s];if(L&&L.done)return"done";var sc=sch(s);if(sc===undefined)return"rest";if(s===T)return"today";if(s>T)return"plan";return s>=S.start?"miss":"rest"}
+function toast(m){var d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2200)}
+function nav(t){tab=t;draw()}
+function done(){return Object.keys(S.logs).filter(function(k){return S.logs[k].done})}
+function streak(){var n=0,d=new Date();for(var i=0;i<200;i++){var s=iso(d);if(sch(s)!==undefined||(S.logs[s]&&S.logs[s].done)){var x=stat(s);if(x==="done")n++;else if(x==="miss")break}d.setDate(d.getDate()-1)}return n}
+function week(){var d=new Date(),k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);var c=0;for(var i=0;i<7;i++){if(S.logs[iso(d)]&&S.logs[iso(d)].done)c++;d.setDate(d.getDate()+1)}return c}
+function vol(){var v=0;for(var k in S.logs){var s=S.logs[k].sets||{};for(var e in s)s[e].forEach(function(x){if(x.ok)v+=(+x.w||0)*(+x.r||0)})}return v}
+function hdr(){var n=done().length,l=Math.min(5,Math.floor(n/8));var nx=(l+1)*8,pr=l>=5?100:(n-l*8)/8*100;
+document.getElementById("lv").innerHTML="РІВЕНЬ "+(l+1)+"<b>"+LT[l]+"</b><div class='bar'><i style='width:"+pr+"%'></i></div>";
+document.getElementById("st").innerHTML=[[streak(),"🔥 серія"],[n,"тренувань"],[week()+"/3","цей тиждень"],[Math.round(vol()/1000*10)/10+"т","тоннаж"]].map(function(a){return"<div class='s'><b>"+a[0]+"</b><span>"+a[1]+"</span></div>"}).join("");
+document.getElementById("nav").innerHTML=[["t","Сьогодні"],["c","Календар"],["p","Прогрес"],["x","Вправи"],["l","Мій план"],["m","Чат"]].map(function(a){return"<button class='"+(tab===a[0]?"on":"")+"' onclick=\"nav('"+a[0]+"')\">"+a[1]+"</button>"}).join("")}
+function ensure(){var d=S.logs[T];if(!d){d=S.logs[T]={day:sel,sets:{},done:false}}d.day=sel;return d}
+function last(name){var ks=Object.keys(S.logs).filter(function(k){return k<T}).sort().reverse();for(var i=0;i<ks.length;i++){var ss=S.logs[ks[i]].sets||{},dd=P[S.logs[ks[i]].day];if(!dd)continue;for(var e in ss){if(dd.e[e]&&dd.e[e][0]===name){var b=null;ss[e].forEach(function(x){if(x.ok&&+x.w&&(!b||+x.w>+b.w))b=x});if(b)return b}}}return null}
+function setv(e,i,k,v){var d=ensure();d.sets[e]=d.sets[e]||[];d.sets[e][i]=d.sets[e][i]||{};d.sets[e][i][k]=v;sv()}
+function ck(e,i){var d=ensure();d.sets[e]=d.sets[e]||[];var s=d.sets[e][i]=d.sets[e][i]||{};s.ok=!s.ok;sv();draw()}
+function fin(){var d=ensure();d.done=!d.done;sv();if(d.done)toast("🔥 Тренування зараховано!");draw()}
+function pick(i){sel=i;draw()}
+function vT(){var sc=sch(T);if(sel===null)sel=sc!==undefined?sc:(S.logs[T]?S.logs[T].day:0);var h="<div class='pills'>"+P.map(function(p,i){return"<button class='pill "+(sel===i?"on":"")+"' onclick='pick("+i+")'>День "+(i+1)+"</button>"}).join("")+"</div>";
+if(sc===undefined&&!S.logs[T])h+="<div class='card'>😴 Сьогодні день відпочинку. Росте м’яз, коли ти відновлюєшся. Хочеш — можеш потренуватись, обери день вище.</div>";
+var d=S.logs[T]||{sets:{}},p=P[sel];h+="<div class='card'><div class='dl'>"+(sel+1)+" · "+p.n+"</div></div>";
+p.e.forEach(function(x,e){var l=last(x[0]),s=d.sets[e]||[];h+="<div class='card ex'><h3>"+x[0]+"</h3><div class='t'>"+x[1]+" × "+x[2]+" повторів</div>"+(l?"<div class='l'>минулого разу: "+l.w+" кг × "+l.r+"</div>":"");
+for(var i=0;i<x[1];i++){var v=s[i]||{};h+="<div class='set'><em>"+(i+1)+"</em><input type='number' inputmode='decimal' placeholder='кг' value='"+(v.w||"")+"' oninput='setv("+e+","+i+",\"w\",this.value)'><input type='number' inputmode='numeric' placeholder='повтори' value='"+(v.r||"")+"' oninput='setv("+e+","+i+",\"r\",this.value)'><button class='ck "+(v.ok?"on":"")+"' onclick='ck("+e+","+i+")'>✓</button></div>"}
+h+="</div>"});
+h+="<button class='go "+(d.done?"d":"")+"' onclick='fin()'>"+(d.done?"✔ ЗАРАХОВАНО (натисни, щоб скасувати)":"ЗАВЕРШИТИ ТРЕНУВАННЯ")+"</button>";return h}
+function cl(s){var d=S.logs[s];if(d&&d.done)delete S.logs[s];else S.logs[s]={day:sch(s)!==undefined?sch(s):0,sets:(d&&d.sets)||{},done:true};sv();draw()}
+function mv(n){cm+=n;if(cm>11){cm=0;cy++}if(cm<0){cm=11;cy--}draw()}
+function vC(){var f=(new Date(cy,cm,1).getDay()+6)%7,n=new Date(cy,cm+1,0).getDate(),h="<div class='card'><div class='mh'><button onclick='mv(-1)'>‹</button>"+MN[cm]+" "+cy+"<button onclick='mv(1)'>›</button></div><div class='cal'>"+["Пн","Вт","Ср","Чт","Пт","Сб","Нд"].map(function(x){return"<div class='h'>"+x+"</div>"}).join("");
+for(var i=0;i<f;i++)h+="<div class='c e'></div>";
+for(var d=1;d<=n;d++){var s=cy+"-"+String(cm+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"),x=stat(s),sc=sch(s),ic=x==="done"?"✓":x==="miss"?"✕":sc!==undefined?"Д"+(sc+1):"";
+h+="<div class='c "+x+"' "+(s<=T?"onclick='cl(\""+s+"\")'":"")+">"+d+"<small>"+ic+"</small></div>"}
+var mm=0,dn=0;for(var k in S.logs){if(k.indexOf(cy+"-"+String(cm+1).padStart(2,"0"))===0&&S.logs[k].done)dn++}
+for(d=1;d<=n;d++){s=cy+"-"+String(cm+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");if(stat(s)==="miss")mm++}
+h+="</div><div class='lg'><span><i style='background:var(--ok)'></i>був</span><span><i style='background:var(--bad)'></i>пропустив</span><span><i style='border:1px dashed var(--ac)'></i>план</span></div><div class='tip'>Цього місяця: <b>"+dn+"</b> тренувань, пропущено <b>"+mm+"</b>. Торкнись минулого дня, щоб відмітити чи зняти відмітку.</div></div>";return h}
+function addB(){var g=function(i){return parseFloat(document.getElementById(i).value)};var w=g("bw"),a=g("bt"),b=g("bb");if(isNaN(w)&&isNaN(a)&&isNaN(b)){toast("Введи хоч одне значення");return}
+S.body=S.body.filter(function(x){return x.d!==T});S.body.push({d:T,w:isNaN(w)?null:w,t:isNaN(a)?null:a,b:isNaN(b)?null:b});S.body.sort(function(x,y){return x.d<y.d?-1:1});sv();toast("Збережено 💾");draw()}
+function delB(d){S.body=S.body.filter(function(x){return x.d!==d});sv();draw()}
+function ch(k,t,u,col){var a=S.body.filter(function(x){return x[k]!=null});if(a.length<2)return"<div class='card'><h2>"+t+"</h2><div class='tip'>Потрібно хоча б 2 записи для графіка.</div></div>";
+var v=a.map(function(x){return x[k]}),mn=Math.min.apply(0,v),mx=Math.max.apply(0,v),r=(mx-mn)||1,W=600,H=160,pd=20,
+pts=a.map(function(x,i){return[pd+i*(W-2*pd)/(a.length-1),H-pd-(x[k]-mn)/r*(H-2*pd)]}),dl=(v[v.length-1]-v[0]).toFixed(1);
+return"<div class='card'><h2>"+t+" <span style='color:"+col+"'>"+(dl>0?"+":"")+dl+" "+u+"</span></h2><svg viewBox='0 0 "+W+" "+H+"' width='100%'><polyline fill='none' stroke='"+col+"' stroke-width='3' stroke-linejoin='round' points='"+pts.map(function(p){return p.join(",")}).join(" ")+"'/>"+pts.map(function(p,i){return"<circle cx='"+p[0]+"' cy='"+p[1]+"' r='4' fill='"+col+"'/><text x='"+p[0]+"' y='"+(p[1]-8)+"' font-size='11' text-anchor='middle' fill='currentColor'>"+v[i]+"</text>"}).join("")+"</svg></div>"}
+function vP(){var l=S.body[S.body.length-1]||{};var h="<div class='card'><h2>Заміри сьогодні</h2><div class='f'><div><label>Вага, кг</label><input id='bw' type='number' step='0.1' inputmode='decimal' value='"+(l.w||"")+"'></div><div><label>Талія, см (на рівні пупка)</label><input id='bt' type='number' step='0.1' inputmode='decimal' value='"+(l.t||"")+"'></div></div><div class='f'><div><label>Жим лежачи, кг (робоча вага)</label><input id='bb' type='number' step='0.5' inputmode='decimal' value='"+(l.b||"")+"'></div></div><button class='go' onclick='addB()'>ЗБЕРЕГТИ ЗАМІР</button></div>";
+h+=ch("t","Талія","см","#ff4d2e")+ch("w","Вага","кг","#c6ff3d")+ch("b","Жим лежачи","кг","#3dff9a");
+if(S.body.length)h+="<div class='card'><h2>Історія</h2><table>"+S.body.slice().reverse().map(function(x){return"<tr><td>"+x.d+"</td><td>"+(x.w||"–")+" кг · "+(x.t||"–")+" см · жим "+(x.b||"–")+"</td><td><button class='sm' onclick='delB(\""+x.d+"\")'>✕</button></td></tr>"}).join("")+"</table></div>";return h}
+function vL(){var h="";P.forEach(function(p,i){h+="<div class='card'><h2>День "+(i+1)+" · "+["Пн","Ср","Пт"][i]+" — "+p.n+"</h2><table>"+p.e.map(function(x){return"<tr><td>"+x[0]+"</td><td>"+x[1]+" × "+x[2]+"</td></tr>"}).join("")+"</table></div>"});
+return h+"<div class='card'><h2>Правила прогресу</h2><div class='tip'><b>Прогресія:</b> коли всі підходи дійшли до верху діапазону повторів — додай вагу (2,5 кг або один диск).</div><div class='tip'><b>Відмова:</b> лишай 1–2 повтори в запасі, останній підхід можна до відмови.</div><div class='tip'><b>Жир:</b> дефіцит калорій приблизно 300–500 ккал, білок 1,6–2,2 г на кг ваги, 8–10 тис. кроків на день.</div><div class='tip'><b>Талія:</b> зменшується головним чином через втрату жиру (точково жир не спалюється). Не став великі обтяження на бічні нахили з гантеллю: вони тренують косі м’язи, а це не звужує талію.</div><div class='tip'><b>Жим лежачи:</b> роби його в день 3 замість тренажера раз на 1–2 тижні, щоб тренувати саму вправу.</div><div class='tip'><b>Сон:</b> 7–9 годин. Без сну ріст і схуднення гальмуються.</div></div>"}
+var LIB=`Підтягування|Спина|Ширина спини (найширші), біцепс|Тягни лікті вниз до ребер, без розгойдування
+Тяга верхнього блоку|Спина|Ширина спини, заміна підтягуванням|Тягни до верху грудей, груди вперед
+Тяга горизонтального блоку|Спина|Товщина спини, середина трапецій|Зводь лопатки в кінці руху
+Тяга гантелі однією рукою|Спина|Найширші, вирівнює силу рук|Корпус нерухомий, лікоть до стегна
+Тяга гантелей на лаві (грудьми на спинку)|Спина|Товщина спини без навантаження на поперек|Груди притиснуті, лікті під 45°
+Прямі руки на блоці|Спина|Ізоляція найширших, розтяг|Руки майже прямі, рух від плеча
+Пуловер з гантеллю|Спина|Найширші й грудні, розтяг|Лікті злегка зігнуті, повільно
+Face pull|Плечі|Задні дельти, здоров’я плечей|Тягни до обличчя, лікті вище кистей
+Жим лежачи|Груди|Базова сила грудей і жиму|Лопатки зведені, стопи на підлозі
+Похилий жим у тренажері|Груди|Верх грудей, безпечна прогресія|Лікті 45–60°, опускай 2 с
+Жим гантелей на похилій лаві|Груди|Верх грудей, баланс рук|Кут близько 30°, не вище
+Розведення гантелей|Груди|Розтяг і форма грудей|Легка вага, лікті злегка зігнуті
+Віджимання|Груди|Груди, трицепс, кор|Тіло рівною лінією
+Жим на брусах|Груди|Низ грудей, трицепс|Не глибше комфортного розтягу
+Бічні підйоми|Плечі|Ширина плечей: талія виглядає вужчою|Лікті трохи зігнуті, до рівня плечей
+Жим гантелей сидячи над головою|Плечі|Передні й бічні дельти|Не прогинай поперек
+Підйом на задні дельти|Плечі|Задні дельти, постава|Рух від плеча, без ривків
+Шраги|Плечі|Трапеції|Вгору, без обертань плечима
+Підйом гантелей на біцепс|Руки|Біцепс|Лікті біля корпуса
+Французький жим|Руки|Трицепс (допомагає жиму лежачи)|Лікті не розводь
+Розгинання рук на блоці|Руки|Трицепс|Лікті притиснуті
+Присід (гоблет)|Ноги|Квадрицепси, сідниці, кор|Коліна по лінії стоп
+Жим ногами|Ноги|Квадрицепси, сідниці, безпечно|Поперек притиснутий до спинки
+Гакк-присід|Ноги|Квадрицепси|Повна амплітуда
+Румунська тяга|Ноги|Задня поверхня стегна, сідниці|Спина рівна, таз назад
+Випади|Ноги|Ноги, баланс|Середній крок, корпус рівно
+Ab Coaster|Прес|Прямий м’яз живота|Без ривків, повільно
+Підйом колін у висі|Прес|Нижній прес|Без розгойдування
+Планка|Прес|Кор і стабілізація|Тіло рівно, сідниці напружені
+Скручування на блоці|Прес|Прес з обтяженням|Скручуй живіт, а не тягни руками
+Бічні нахили з гантеллю|Прес|⚠ Косі м’язи: з великою вагою роблять талію ширшою|Для вужчої талії краще пропусти`.split("\n").map(function(l){var a=l.split("|");return{n:a[0],g:a[1],p:a[2],t:a[3]}}),lg="Усі",lq="";
+function PL(){if(!S.plan){S.plan=JSON.parse(JSON.stringify(P));P=S.plan}return S.plan}
+function addL(i,k){PL()[i].e.push([LIB[k].n,3,"8–12"]);sv();toast("Додано в День "+(i+1))}
+function rmEx(i,e){PL()[i].e.splice(e,1);sv();draw()}
+function edEx(i,e,k,v){PL()[i].e[e][k]=k===1?(parseInt(v)||3):v;sv()}
+function rst(){S.plan=null;P=JSON.parse(DEF);sv();draw()}
+function lstH(){var q=lq.toLowerCase();return LIB.map(function(x,k){return[x,k]}).filter(function(a){return(lg==="Усі"||a[0].g===lg)&&(!q||a[0].n.toLowerCase().indexOf(q)>-1)}).map(function(a){var x=a[0],k=a[1];return"<div class='card'><span class='tag'>"+x.g+"</span><h3 style='margin:6px 0'>"+x.n+"</h3><div class='tip'><b>Для чого:</b> "+x.p+"</div><div class='tip'><b>Техніка:</b> "+x.t+"</div><div class='pills' style='margin:8px 0 0'>"+[0,1,2].map(function(i){return"<button class='pill' onclick='addL("+i+","+k+")'>+ День "+(i+1)+"</button>"}).join("")+"</div></div>"}).join("")||"<div class='card tip'>Нічого не знайдено</div>"}
+function lst(){document.getElementById("lib").innerHTML=lstH()}
+function sg(g){lg=g;draw()}
+function vX(){return"<input placeholder='Пошук вправи…' value='"+lq.replace(/['"<]/g,"")+"' oninput='lq=this.value;lst()' style='margin-bottom:10px'><div class='pills'>"+["Усі","Спина","Груди","Плечі","Руки","Ноги","Прес"].map(function(g){return"<button class='pill "+(lg===g?"on":"")+"' onclick='sg(\""+g+"\")'>"+g+"</button>"}).join("")+"</div><div id='lib'>"+lstH()+"</div>"}
+function vL(){var h="<div class='card tip'>Склади свій план: додавай вправи у вкладці «Вправи», тут міняй підходи й повтори. За замовчуванням стоїть базовий план Пн / Ср / Пт.</div>";P.forEach(function(p,i){h+="<div class='card'><h2>День "+(i+1)+" · "+["Пн","Ср","Пт"][i]+" — "+p.n+"</h2>"+p.e.map(function(x,e){return"<div class='pr'><b>"+x[0]+"</b><input type='number' value='"+x[1]+"' onchange='edEx("+i+","+e+",1,this.value)'><input value='"+x[2]+"' onchange='edEx("+i+","+e+",2,this.value)'><button class='sm' onclick='rmEx("+i+","+e+")'>✕</button></div>"}).join("")+"</div>"});
+return h+"<button class='pill' onclick='if(confirm(\"Скинути до стандартного плану?\"))rst()'>Скинути до стандартного</button><div class='card' style='margin-top:12px'><h2>Правила прогресу</h2><div class='tip'><b>Прогресія:</b> коли всі підходи дійшли до верху повторів — додай вагу (2,5 кг або диск).</div><div class='tip'><b>Запас:</b> лишай 1–2 повтори, останній підхід можна до відмови.</div><div class='tip'><b>Жир:</b> дефіцит 300–500 ккал, білок 1,6–2,2 г/кг, 8–10 тис. кроків.</div><div class='tip'><b>Талія:</b> зменшується за рахунок втрати жиру (точково він не згоряє). Не став великі обтяження на бічні нахили.</div><div class='tip'><b>Сон:</b> 7–9 годин.</div></div>"}
+var C={st:"",posts:[],chat:[],ps:{},users:[],peer:""};
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(c){return"&#"+c.charCodeAt(0)+";"})}
+function nm(i){return i===C.uid?"Ти":(C.ps[i]||"Учасник")}
+function tm(t){return new Date(t).toLocaleString("uk",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}
+async function initC(){if(C.st)return;C.st="load";try{var cl=window.claude,db=cl&&await cl.use("db"),us=cl&&await cl.use("user");if(!db||!us){C.st="no";return draw()}C.db=db;C.us=us;C.as=await cl.use("assets");C.uid=await us.id();try{C.users=(await us.search("")).filter(function(u){return u.id!==C.uid})}catch(e){}
+C.st="ok";db.collection("posts").orderBy("ts","desc").limit(40).onSnapshot(function(s){C.posts=s.docs.map(function(d){var x=d.data();x.id=d.id;return x});rm()},function(){});
+db.collection("chat").orderBy("ts","desc").limit(200).onSnapshot(function(s){C.chat=s.docs.map(function(d){return d.data()});rm()},function(){});draw()}catch(e){C.st="no";draw()}}
+async function rm(){if(tab!=="m")return;var ids=C.posts.map(function(p){return p.uid}).concat(C.chat.map(function(p){return p.from}));try{var p=await C.us.profiles(ids.filter(Boolean));for(var k in p)C.ps[k]=p[k].name}catch(e){}var a=document.getElementById("feed"),b=document.getElementById("msgs");if(a)a.innerHTML=fH();if(b)b.innerHTML=cH()}
+function fH(){return C.posts.map(function(p){var im=/^(\/_blob\/|https:)/.test(p.img||"")?"<img src='"+esc(p.img)+"' alt=''>":"";return"<div class='card po'><b>"+esc(nm(p.uid))+"</b> <small>"+tm(p.ts)+"</small>"+(p.uid===C.uid?" <button class='sm' onclick='delP(\""+esc(p.id)+"\")'>✕</button>":"")+"<div style='margin-top:6px;white-space:pre-wrap'>"+esc(p.text)+"</div>"+im+"</div>"}).join("")||"<div class='card tip'>Поки що порожньо. Поділись першим!</div>"}
+function cH(){if(!C.peer)return"<div class='tip'>Обери учасника зі списку.</div>";return C.chat.filter(function(m){return(m.from===C.uid&&m.to===C.peer)||(m.from===C.peer&&m.to===C.uid)}).reverse().map(function(m){return"<div class='mm'><b>"+esc(nm(m.from))+":</b> "+esc(m.text)+" <small>"+tm(m.ts)+"</small></div>"}).join("")||"<div class='tip'>Повідомлень ще немає.</div>"}
+function cu(){document.getElementById("msgs").innerHTML=cH()}
+function delP(id){C.db.collection("posts").doc(id).delete().catch(function(){})}
+async function post(){var t=document.getElementById("pt").value.trim(),f=document.getElementById("pf").files[0],img="";if(!t&&!f)return;try{if(f){if(C.as)img=(await C.as.upload(f)).url;else toast("Для фото потрібен дозвіл")}await C.db.collection("posts").doc(Date.now()+Math.random().toString(36).slice(2,6)).set({uid:C.uid,text:t,img:img,ts:Date.now()});document.getElementById("pt").value="";document.getElementById("pf").value=""}catch(e){toast("Не вдалося опублікувати")}}
+async function snd(){var el=document.getElementById("mt"),t=el.value.trim();if(!t||!C.peer)return toast("Обери учасника");try{await C.db.collection("chat").doc(Date.now()+Math.random().toString(36).slice(2,6)).set({from:C.uid,to:C.peer,text:t,ts:Date.now()});el.value=""}catch(e){toast("Не вдалося надіслати")}}
+function vM(){initC();if(C.st!=="ok")return"<div class='card'><h2>Спільнота</h2><div class='tip'>"+(C.st==="no"?"Спільнота доступна учасникам, які відкрили сторінку в claude.ai з доступом. На звичайному хостингу для неї потрібен сервер (Firebase чи Supabase).":"Завантаження…")+"</div></div>";
+return"<div class='card'><h2>Поділись досвідом</h2><textarea id='pt' rows='3' placeholder='Твій результат, порада, питання…'></textarea><div class='pills' style='margin:8px 0 0;align-items:center'><input type='file' id='pf' accept='image/*' style='flex:1'><button class='pill on' onclick='post()'>Опублікувати</button></div></div><div id='feed'>"+fH()+"</div><div class='card'><h2>Особисті повідомлення</h2><select id='ps' onchange='C.peer=this.value;cu()'><option value=''>Обери учасника…</option>"+C.users.map(function(u){return"<option value='"+esc(u.id)+"'"+(C.peer===u.id?" selected":"")+">"+esc(u.name||"Учасник")+"</option>"}).join("")+"</select><div id='msgs' style='margin:8px 0'>"+cH()+"</div><div class='f'><input id='mt' placeholder='Повідомлення…' onkeydown='if(event.key===\"Enter\")snd()'><button class='go' onclick='snd()'>Надіслати</button></div></div>"}
+var FB="";/* ВСТАВ СЮДИ адресу Firebase Realtime Database, напр. https://my-app-default-rtdb.europe-west1.firebasedatabase.app */
+var CM=[],tmr=null;
+function cname(){try{return localStorage.getItem("irn")||""}catch(e){return""}}
+function cmH(){return CM.map(function(m){return"<div class='mm'><b>"+esc(m.n)+":</b> "+esc(m.t)+" <small>"+tm(m.ts)+"</small></div>"}).join("")||"<div class='tip'>Повідомлень ще немає.</div>"}
+async function cload(){if(!FB)return;try{var r=await fetch(FB.replace(/\/$/,"")+"/chat.json?orderBy=%22%24key%22&limitToLast=100"),j=await r.json()||{};CM=Object.keys(j).sort().map(function(k){return j[k]});var b=document.getElementById("cb");if(tab==="m"&&b){var at=b.scrollTop+b.clientHeight>=b.scrollHeight-30;b.innerHTML=cmH();if(at)b.scrollTop=b.scrollHeight}}catch(e){}}
+async function csend(){var n=document.getElementById("cn").value.trim(),el=document.getElementById("cx"),t=el.value.trim();if(!n||!t)return toast("Введи ім’я та повідомлення");try{localStorage.setItem("irn",n)}catch(e){}try{await fetch(FB.replace(/\/$/,"")+"/chat.json",{method:"POST",body:JSON.stringify({n:n.slice(0,24),t:t.slice(0,500),ts:Date.now()})});el.value="";cload()}catch(e){toast("Не вдалося надіслати")}}
+function vM(){if(tmr)clearInterval(tmr);if(!FB)return"<div class='card'><h2>Чат</h2><div class='tip'>Чат ще не підключено. Відкрий index.html, встав у змінну FB адресу бази Firebase (інструкція в README.md).</div></div>";cload();tmr=setInterval(function(){if(tab!=="m"){clearInterval(tmr);return}cload()},3000);return"<div class='card'><h2>Загальний чат</h2><div id='cb' style='height:340px;overflow:auto;margin-bottom:10px'>"+cmH()+"</div><input id='cn' placeholder='Твоє ім’я' value='"+esc(cname())+"' style='margin-bottom:8px'><div class='f'><input id='cx' placeholder='Повідомлення…' onkeydown='if(event.key===\"Enter\")csend()'><button class='go' onclick='csend()'>Надіслати</button></div></div>"}
+function draw(){hdr();document.getElementById("v").innerHTML={t:vT,c:vC,p:vP,x:vX,l:vL,m:vM}[tab]()}
+draw();
+</script></body></html>
