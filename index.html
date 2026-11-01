@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0c10">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <meta name="description" content="Престіж — персональний простір для тренувань, харчування та прогресу.">
 <title>Престіж — твій простір прогресу</title>
 <style>
@@ -347,7 +348,7 @@ let P=S.plan?deep(S.plan):[];
 let page='today',selectedDay=null,calendarMonth=new Date().getMonth(),calendarYear=new Date().getFullYear(),libraryQuery='',libraryGroup='Усі',libraryTarget=0,videoQuery='',videoGroup='Усі',foodDate=todayISO(),timerEnd=0,timerInterval=null,toastTimeout=null;
 const WEEKDAYS=['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 const MONTHS=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-function save(){try{S.plan=deep(P);localStorage.setItem(STORE_KEY,JSON.stringify(S));}catch(e){showToast('Не вдалося зберегти дані. Зроби резервну копію.');}}
+function save(){try{S.plan=deep(P);localStorage.setItem(STORE_KEY,JSON.stringify(S));try{localStorage.setItem(CL_DIRTY,'1');}catch(e){}cloudQueue();}catch(e){showToast('Не вдалося зберегти дані. Зроби резервну копію.');}}
 function getScheduleMap(){return S.schedule&&typeof S.schedule==='object'?S.schedule:{};}
 function scheduledCount(){return Object.keys(getScheduleMap()).length;}
 function schedule(date){const d=parseISO(date).getDay(),m=getScheduleMap();return Object.prototype.hasOwnProperty.call(m,d)?Math.max(0,Math.min(P.length-1,+m[d]||0)):undefined;}
@@ -475,7 +476,7 @@ function addWater(amount){S.waterLogs=S.waterLogs||{};S.waterLogs[foodDate]=Math
 function saveWaterGoal(){const el=document.getElementById('water-goal'),v=+(el?.value||0);if(!v||v<250||v>6000){showToast('Вкажи ціль від 250 до 6000 мл');return;}S.waterGoal=Math.round(v/50)*50;save();draw();showToast('Ціль води збережено');}
 
 function renderSettings(){const acc=S.account||{name:'',goal:''};return `<div class="page-heading"><div><div class="eyebrow">НАЛАШТУЙ ПІД СЕБЕ</div><h1>Налаштування</h1><p>Профіль, мова, вигляд і резервні копії.</p></div></div>
-<section class="panel profile-panel"><div class="profile-head"><div class="profile-avatar">${esc(accountInitials())}</div><div><div class="eyebrow">ТВІЙ ПРОФІЛЬ</div><h2>${esc(acc.name||'Гість Престіж')}</h2><p>${esc(acc.goal||'Додай ім’я та свою спортивну ціль')}</p></div></div><div class="form-grid profile-fields"><div class="form-field"><label for="account-name">ІМ’Я</label><input class="field" id="account-name" maxlength="32" autocomplete="nickname" placeholder="Як тебе називати?" value="${esc(acc.name||'')}"></div><div class="form-field"><label for="account-goal">МОЯ ЦІЛЬ</label><input class="field" id="account-goal" maxlength="80" placeholder="Наприклад, стати сильнішим" value="${esc(acc.goal||'')}"></div><div class="form-field full profile-actions"><button class="btn btn-primary" onclick="saveLocalProfile()">${icon('check')} Зберегти профіль</button><button class="btn btn-ghost" onclick="clearLocalProfile()">Очистити</button></div></div><div class="notice" style="margin-top:14px">Це локальний профіль без пароля: він зберігається лише в цьому браузері. Справжній вхід з іншого телефону та синхронізація потребують серверної авторизації.</div></section>
+<section class="panel profile-panel"><div class="profile-head"><div class="profile-avatar">${esc(accountInitials())}</div><div><div class="eyebrow">ТВІЙ ПРОФІЛЬ</div><h2>${esc(acc.name||'Гість Престіж')}</h2><p>${esc(acc.goal||'Додай ім’я та свою спортивну ціль')}</p></div></div><div class="form-grid profile-fields"><div class="form-field"><label for="account-name">ІМ’Я</label><input class="field" id="account-name" maxlength="32" autocomplete="nickname" placeholder="Як тебе називати?" value="${esc(acc.name||'')}"></div><div class="form-field"><label for="account-goal">МОЯ ЦІЛЬ</label><input class="field" id="account-goal" maxlength="80" placeholder="Наприклад, стати сильнішим" value="${esc(acc.goal||'')}"></div><div class="form-field full profile-actions"><button class="btn btn-primary" onclick="saveLocalProfile()">${icon('check')} Зберегти профіль</button><button class="btn btn-ghost" onclick="clearLocalProfile()">Очистити</button></div></div><div class="notice" style="margin-top:14px">${esc(cloudNote())}</div></section>
 <section class="panel"><div class="section-head"><div><h2>Мова інтерфейсу</h2><p>Можна перемикатися будь-коли.</p></div></div><div class="language-options"><button class="language-option ${S.language==='uk'?'active':''}" onclick="setLanguage('uk')"><strong>🇺🇦 Українська</strong><small>Основна мова</small></button><button class="language-option ${S.language==='en'?'active':''}" onclick="setLanguage('en')"><strong>🇬🇧 English</strong><small>English interface</small></button><button class="language-option ${S.language==='pl'?'active':''}" onclick="setLanguage('pl')"><strong>🇵🇱 Polski</strong><small>Polski interfejs</small></button></div></section>
 <section class="panel"><div class="section-head"><div><h2>Зовнішній вигляд</h2><p>Вибери тему інтерфейсу.</p></div></div><div class="setting-row"><div><strong>Тема оформлення</strong><small>Темна або світла тема.</small></div><div class="segmented"><button class="${S.theme==='dark'?'active':''}" onclick="setTheme('dark');draw()">Темна</button><button class="${S.theme==='light'?'active':''}" onclick="setTheme('light');draw()">Світла</button></div></div></section>
 <section class="panel"><div class="section-head"><div><h2>Таймер відпочинку</h2><p>Автоматично запускається після відмітки підходу.</p></div></div><div class="setting-row"><div><strong>Тривалість паузи</strong><small>Можна змінити під час тренування.</small></div><div class="segmented">${[60,90,120,180].map(x=>`<button class="${S.rest===x?'active':''}" onclick="S.rest=${x};save();draw()">${x<60?x:x/60+(x%60?':'+String(x%60).padStart(2,'0'):' хв')}</button>`).join('')}</div></div></section>
@@ -675,7 +676,7 @@ function calculatePlates(){const t=+document.getElementById('plate-total').value
 async function exportData(){const ok=await saveTextFile(`ironlog-backup-${todayISO()}.json`,JSON.stringify({...S,plan:P},null,2));if(ok)showToast('Резервну копію створено');}
 function importData(input){const file=input.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o.logs!=='object'||!Array.isArray(o.body))throw new Error('invalid');if(!confirm('Замінити поточні дані інформацією з резервної копії?'))return;S={...loadState(),...o,account:{name:'',goal:'',...(o.account||{})},language:['uk','en','pl'].includes(o.language)?o.language:'uk',waterLogs:o.waterLogs&&typeof o.waterLogs==='object'?o.waterLogs:{},waterGoal:Number.isFinite(+o.waterGoal)&&+o.waterGoal>0?+o.waterGoal:2000,board:cleanBoard(o.board)};if(Array.isArray(o.plan))P=o.plan;save();draw();showToast('Дані успішно імпортовано');}catch(e){showToast('Файл резервної копії некоректний');}finally{input.value='';}};r.readAsText(file);}
 function clearLogs(){if(!confirm('Очистити всі записи тренувань? План і заміри залишаться.'))return;S.logs={};S.start=todayISO();save();draw();showToast('Журнал тренувань очищено');}
-function wipeAll(){if(prompt('Це видалить усі тренування, заміри, план і налаштування. Введи ВИДАЛИТИ для підтвердження:')!=='ВИДАЛИТИ')return;try{localStorage.removeItem(STORE_KEY);}catch(e){}location.reload();}
+async function wipeAll(){if(prompt('Це видалить усі тренування, заміри, план і налаштування. Введи ВИДАЛИТИ для підтвердження:')!=='ВИДАЛИТИ')return;try{await cloudWipe();}catch(e){}try{localStorage.removeItem(STORE_KEY);localStorage.removeItem(CL_DIRTY);localStorage.removeItem(CL_MARK);}catch(e){}location.reload();}
 function startTimer(seconds){timerEnd=Date.now()+seconds*1000;if(timerInterval)clearInterval(timerInterval);timerInterval=setInterval(updateTimerUI,250);updateTimerUI();}
 function updateTimerUI(){const bar=document.getElementById('timer-bar');if(!bar)return;if(!timerEnd){bar.classList.remove('visible');return;}const left=Math.max(0,Math.ceil((timerEnd-Date.now())/1000));if(left<=0){stopTimer();showToast('Час наступного підходу!');try{navigator.vibrate?.([180,100,180]);}catch(e){}return;}document.getElementById('timer-value').textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`;bar.classList.add('visible');}
 function adjustTimer(delta){if(!timerEnd)return;timerEnd=Math.max(Date.now()+1000,timerEnd+delta*1000);updateTimerUI();}
@@ -684,7 +685,108 @@ function stopTimer(){timerEnd=0;if(timerInterval){clearInterval(timerInterval);t
 
 document.documentElement.dataset.theme=S.theme;document.documentElement.lang=S.language==='en'?'en':S.language==='pl'?'pl':'uk';document.getElementById('theme-toggle').addEventListener('click',()=>setTheme(S.theme==='dark'?'light':'dark'));
 
+
+/* ===== Акаунт: дані зберігаються в приватній базі користувача (db + user) ===== */
+const CL_DIRTY='prestizh_cloud_dirty',CL_MARK='prestizh_cloud_mark';let CL_CHUNK=60000;
+const CL={on:false,uid:'',db:null,base:'',timer:0,busy:false,again:false,state:'local',n:0};
+function cloudNote(){return CL.on?(CL.state==='error'?'Акаунт підключено, але зберегти дані в хмару не вдалося. Дані поки лежать на цьому пристрої — спробуй ще раз пізніше.':CL.state==='saving'?'Зберігаю в акаунт…':'Дані зберігаються в твоєму акаунті й доступні з усіх пристроїв, де ти відкриєш цю сторінку.'):'Ти не ввійшов в акаунт: дані зберігаються лише в цьому браузері. Відкрий опубліковану сторінку, увійшовши в claude.ai, щоб вони синхронізувалися.';}
+function cloudHasLocalData(){return Object.keys(S.logs||{}).length>0||(S.body||[]).length>0||Object.keys(S.foodLogs||{}).length>0;}
+async function cloudRead(){
+  const m=await CL.db.doc(CL.base+'/meta').get();
+  if(!m.exists)return null;
+  const meta=m.data()||{},n=+meta.n||0;let s='';
+  for(let i=0;i<n;i++){const c=await CL.db.doc(CL.base+'/c'+i).get();if(!c.exists)return null;s+=String((c.data()||{}).v||'');}
+  return {ts:+meta.ts||0,n,json:s};
+}
+function cloudApply(json,ts){
+  const o=JSON.parse(json);
+  localStorage.setItem(STORE_KEY,JSON.stringify(o));
+  localStorage.setItem(CL_MARK,CL.uid+'|'+ts);localStorage.removeItem(CL_DIRTY);
+  S=loadState();P=S.plan?deep(S.plan):[];
+  document.documentElement.dataset.theme=S.theme;
+  draw();
+}
+async function cloudPush(){
+  if(!CL.on)return;
+  if(CL.busy){CL.again=true;return;}
+  CL.busy=true;CL.state='saving';
+  try{
+    const json=JSON.stringify(S),chunks=[];
+    for(let i=0;i<json.length;i+=CL_CHUNK)chunks.push(json.slice(i,i+CL_CHUNK));
+    const ts=Date.now();
+    for(let i=0;i<chunks.length;i++)await CL.db.doc(CL.base+'/c'+i).set({v:chunks[i]});
+    await CL.db.doc(CL.base+'/meta').set({n:chunks.length,ts});
+    for(let i=chunks.length;i<CL.n;i++){try{await CL.db.doc(CL.base+'/c'+i).delete();}catch(e){}}
+    CL.n=chunks.length;
+    localStorage.setItem(CL_MARK,CL.uid+'|'+ts);localStorage.removeItem(CL_DIRTY);
+    CL.state='ok';
+  }catch(e){CL.state='error';}
+  CL.busy=false;
+  if(CL.again){CL.again=false;cloudQueue();}
+}
+function cloudQueue(){if(!CL.on)return;clearTimeout(CL.timer);CL.timer=setTimeout(cloudPush,1500);}
+async function cloudPull(){
+  const cur=await cloudRead(),mark=(localStorage.getItem(CL_MARK)||'').split('|'),mine=mark[0]===CL.uid,dirty=!!localStorage.getItem(CL_DIRTY);
+  if(!cur){await cloudPush();return;}
+  CL.n=cur.n;
+  if(mine&&dirty){await cloudPush();return;}
+  if(mine&&cur.ts<=(+mark[1]||0))return;
+  if(!mine&&cloudHasLocalData()&&!confirm('В акаунті вже є збережені дані. Замінити ними дані з цього пристрою?\nОК — взяти дані з акаунта, Скасувати — залишити тут і записати їх в акаунт.')){await cloudPush();return;}
+  cloudApply(cur.json,cur.ts);
+}
+async function initCloud(){
+  try{
+    if(!window.claude||typeof claude.use!=='function')return;
+    const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
+    if(!db||!user)return;
+    const me=await user.me();
+    if(!me||!me.id)return;
+    CL.db=db;CL.uid=me.id;CL.base='data/users/'+me.id;CL.on=true;
+    await cloudPull();
+    if(!(S.account&&S.account.name)&&me.name){S.account={...(S.account||{}),name:me.name.slice(0,32),goal:(S.account&&S.account.goal)||''};save();}
+    if(CL.state==='local')CL.state='ok';
+    if(page==='settings')draw();
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!CL.busy&&!localStorage.getItem(CL_DIRTY))cloudPull().catch(()=>{});});
+  }catch(e){CL.on=false;}
+}
+async function cloudWipe(){
+  if(!CL.on)return;
+  for(let i=0;i<Math.max(CL.n,1);i++){try{await CL.db.doc(CL.base+'/c'+i).delete();}catch(e){}}
+  try{await CL.db.doc(CL.base+'/meta').delete();}catch(e){}
+}
+
+/* ===== Telegram Mini App: акаунт = акаунт Telegram, дані в Telegram CloudStorage ===== */
+function tgDb(){
+  const cs=Telegram.WebApp.CloudStorage,k=p=>p.replace(/[^A-Za-z0-9_-]/g,'_');
+  const miss={exists:false,data:()=>undefined};
+  return {doc:p=>({
+    get:()=>new Promise((res,rej)=>cs.getItem(k(p),(e,v)=>{
+      if(e)return rej(e);if(!v)return res(miss);
+      try{const o=v[0]==='S'?{v:v.slice(1)}:JSON.parse(v.slice(1));res({exists:true,data:()=>o});}catch(x){res(miss);}
+    })),
+    set:o=>new Promise((res,rej)=>cs.setItem(k(p),typeof o.v==='string'&&Object.keys(o).length===1?'S'+o.v:'J'+JSON.stringify(o),e=>e?rej(e):res())),
+    delete:()=>new Promise((res,rej)=>cs.removeItem(k(p),e=>e?rej(e):res()))
+  })};
+}
+async function initTelegram(){
+  try{
+    const W=Telegram.WebApp;
+    W.ready();W.expand();
+    try{W.setHeaderColor('#0b0c10');W.setBackgroundColor('#0b0c10');}catch(e){}
+    if(!W.CloudStorage||!W.isVersionAtLeast||!W.isVersionAtLeast('6.9'))return;
+    const u=W.initDataUnsafe&&W.initDataUnsafe.user;
+    CL_CHUNK=2000;CL.db=tgDb();CL.uid='tg'+(u&&u.id||0);CL.base='tg';CL.on=true;
+    await cloudPull();
+    if(!(S.account&&S.account.name)&&u&&u.first_name){S.account={...(S.account||{}),name:String(u.first_name).slice(0,32),goal:(S.account&&S.account.goal)||''};save();}
+    if(CL.state==='local')CL.state='ok';
+    if(page==='settings')draw();
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!CL.busy&&!localStorage.getItem(CL_DIRTY))cloudPull().catch(()=>{});});
+  }catch(e){CL.on=false;}
+}
+const IN_TG=!!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData);
+
 draw();
+IN_TG?initTelegram():initCloud();
 initBoardShared();
 
 function renderIntegrations(){return `<div class="page-heading"><div><div class="eyebrow">OPEN DATA · БЕЗ КЛЮЧІВ</div><h1>Корисні інтеграції</h1><p>Додаткові інструменти на базі відкритих безкоштовних API. Для пошуку потрібне підключення до інтернету.</p></div></div>
